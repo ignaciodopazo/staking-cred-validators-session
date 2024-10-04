@@ -1,0 +1,18 @@
+name = "ignaciodopazo/staking-cred-validators-session"
+version = "0.0.0"
+compiler = "v1.1.4"
+plutus = "v3"
+license = "Apache-2.0"
+description = "Aiken contracts for project 'ignaciodopazo/staking-cred-validators-session'"
+
+[repository]
+user = "ignaciodopazo"
+project = "staking-cred-validators-session"
+platform = "github"
+
+[[dependencies]]
+name = "aiken-lang/stdlib"
+version = "v2.1.0"
+source = "github"
+
+[config]
