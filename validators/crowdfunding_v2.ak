@@ -1,3 +1,4 @@
+use aiken/collection/dict
 use aiken/collection/list
 use aiken/collection/pairs
 use cardano/address.{Credential, Script, Inline}
@@ -43,21 +44,40 @@ validator crowdfunding_v2 {
 
   withdraw(
     redeemer: CampaignOperation,
-    _account: Credential,
-    _self: Transaction
+    account: Credential,
+    self: Transaction
   ) {
     // all validation logic is placed here now!
+    expect Script(own_hash) = account
+
     when redeemer is {
       Create ->
         // only 1 campaign token is being minted (campaign NFT)
         // campaign NFT is paid to own script address
         True
       Support ->
+        // campaign input funds < campaign output funds
         True
-      Close ->
-        // N campaign NFTs are being burnt, N >= 1
+      Close -> {
+        // enforce own tokens burning
+        let own_mint =
+          self.mint
+            |> assets.tokens(own_hash)
+            |> dict.to_pairs()
+        expect [Pair(_, qty)] = own_mint
+        expect qty < 0
         // no campaign NFTs are present in the outputs
-        True
+        self.outputs
+          |> list.all(
+              fn(o) {
+                  o.value
+                    |> assets.tokens(own_hash)
+                    |> dict.is_empty()
+              },
+            )
+        // all campaign owners sign the transaction
+        // ...
+      }
     }
   }
 
